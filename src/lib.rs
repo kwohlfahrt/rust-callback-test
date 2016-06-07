@@ -10,7 +10,7 @@ extern {
     fn unset_handler() -> *mut c_void;
 }
 
-extern fn do_something_handler(x: c_int, arg: *mut c_void) -> c_int {
+extern fn callback_handler(x: c_int, arg: *mut c_void) -> c_int {
     let closure: &mut Box<FnMut(i32) -> bool> = unsafe { mem::transmute(arg) };
     closure(x as i32) as c_int
 }
@@ -19,7 +19,7 @@ pub fn set_callback<F>(callback: F) where F: FnMut(i32) -> bool, F: 'static {
     let cb: Box<Box<FnMut(i32) -> bool>> = Box::new(Box::new(callback));
     let ptr = Box::into_raw(cb) as * mut _;
     unsafe {
-        set_handler(Some(do_something_handler), ptr);
+        set_handler(Some(callback_handler), ptr);
     }
 }
 
